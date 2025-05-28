@@ -1,12 +1,18 @@
+import { useState } from 'react';
+
 import { motion } from 'framer-motion';
 import ApperIcon from '../components/ApperIcon';
 import Card from '../components/common/Card';
 import { dashboardConfig } from '../constants/dashboardConfig';
 import { formatCurrency } from '../utils/formatUtils';
 import { useDashboardData } from '../hooks/useDashboardData';
+import Chart from 'react-apexcharts';
+
 
 const Dashboard = () => {
-  const { stats, recentOrders, topProducts, isLoading } = useDashboardData();
+  const { stats, recentOrders, topProducts, chartData, isLoading } = useDashboardData();
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
 
   if (isLoading) {
     return (
@@ -15,6 +21,163 @@ const Dashboard = () => {
       </div>
     );
   }
+
+  // Chart configurations
+  const revenueChartOptions = {
+    chart: {
+      type: 'line',
+      height: 350,
+      toolbar: { show: false },
+      background: 'transparent'
+    },
+    stroke: {
+      curve: 'smooth',
+      width: 3
+    },
+    colors: ['#0ea5e9'],
+    xaxis: {
+      categories: chartData.revenueData.map(item => item.month),
+      labels: {
+        style: {
+          colors: isDarkMode ? '#9ca3af' : '#6b7280'
+        }
+      }
+    },
+    yaxis: {
+      labels: {
+        style: {
+          colors: isDarkMode ? '#9ca3af' : '#6b7280'
+        },
+        formatter: (value) => `$${(value / 1000).toFixed(0)}k`
+      }
+    },
+    grid: {
+      borderColor: isDarkMode ? '#374151' : '#e5e7eb'
+    },
+    tooltip: {
+      theme: isDarkMode ? 'dark' : 'light',
+      y: {
+        formatter: (value) => `$${value.toLocaleString()}`
+      }
+    },
+    legend: {
+      labels: {
+        colors: isDarkMode ? '#9ca3af' : '#6b7280'
+      }
+    }
+  };
+
+  const revenueChartSeries = [{
+    name: 'Revenue',
+    data: chartData.revenueData.map(item => item.revenue)
+  }];
+
+  const categoryChartOptions = {
+    chart: {
+      type: 'donut',
+      height: 350
+    },
+    colors: chartData.salesByCategory.map(item => item.color),
+    labels: chartData.salesByCategory.map(item => item.category),
+    legend: {
+      position: 'bottom',
+      labels: {
+        colors: isDarkMode ? '#9ca3af' : '#6b7280'
+      }
+    },
+    tooltip: {
+      theme: isDarkMode ? 'dark' : 'light',
+      y: {
+        formatter: (value) => `${value}%`
+      }
+    },
+    responsive: [{
+      breakpoint: 480,
+      options: {
+        chart: {
+          width: 200
+        },
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }]
+  };
+
+  const categoryChartSeries = chartData.salesByCategory.map(item => item.sales);
+
+  const salesChartOptions = {
+    chart: {
+      type: 'bar',
+      height: 350,
+      toolbar: { show: false }
+    },
+    colors: ['#22c55e', '#f59e0b'],
+    xaxis: {
+      categories: chartData.monthlySales.map(item => item.month),
+      labels: {
+        style: {
+          colors: isDarkMode ? '#9ca3af' : '#6b7280'
+        }
+      }
+    },
+    yaxis: [
+      {
+        title: {
+          text: 'Orders',
+          style: {
+            color: isDarkMode ? '#9ca3af' : '#6b7280'
+          }
+        },
+        labels: {
+          style: {
+            colors: isDarkMode ? '#9ca3af' : '#6b7280'
+          }
+        }
+      },
+      {
+        opposite: true,
+        title: {
+          text: 'Revenue ($)',
+          style: {
+            color: isDarkMode ? '#9ca3af' : '#6b7280'
+          }
+        },
+        labels: {
+          style: {
+            colors: isDarkMode ? '#9ca3af' : '#6b7280'
+          },
+          formatter: (value) => `$${(value / 1000).toFixed(0)}k`
+        }
+      }
+    ],
+    grid: {
+      borderColor: isDarkMode ? '#374151' : '#e5e7eb'
+    },
+    tooltip: {
+      theme: isDarkMode ? 'dark' : 'light'
+    },
+    legend: {
+      labels: {
+        colors: isDarkMode ? '#9ca3af' : '#6b7280'
+      }
+    }
+  };
+
+  const salesChartSeries = [
+    {
+      name: 'Orders',
+      type: 'bar',
+      data: chartData.monthlySales.map(item => item.orders)
+    },
+    {
+      name: 'Revenue',
+      type: 'line',
+      data: chartData.monthlySales.map(item => item.revenue)
+    }
+  ];
+
+
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -158,6 +321,81 @@ const Dashboard = () => {
             </Card>
           </motion.div>
         </div>
+
+        {/* Charts Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+          className="mb-8"
+        >
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              Sales Analytics
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              Interactive charts and graphs showing key business metrics
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
+            {/* Revenue Trends Chart */}
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Revenue Trends
+                </h3>
+                <ApperIcon name="TrendingUp" className="h-5 w-5 text-gray-400" />
+              </div>
+              <div className="h-80">
+                <Chart
+                  options={revenueChartOptions}
+                  series={revenueChartSeries}
+                  type="line"
+                  height="100%"
+                />
+              </div>
+            </Card>
+
+            {/* Sales by Category Chart */}
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Sales by Category
+                </h3>
+                <ApperIcon name="PieChart" className="h-5 w-5 text-gray-400" />
+              </div>
+              <div className="h-80">
+                <Chart
+                  options={categoryChartOptions}
+                  series={categoryChartSeries}
+                  type="donut"
+                  height="100%"
+                />
+              </div>
+            </Card>
+          </div>
+
+          {/* Monthly Sales Comparison Chart */}
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                Monthly Sales Comparison
+              </h3>
+              <ApperIcon name="BarChart3" className="h-5 w-5 text-gray-400" />
+            </div>
+            <div className="h-80">
+              <Chart
+                options={salesChartOptions}
+                series={salesChartSeries}
+                type="line"
+                height="100%"
+              />
+            </div>
+          </Card>
+        </motion.div>
+
+
       </motion.div>
     </div>
   );

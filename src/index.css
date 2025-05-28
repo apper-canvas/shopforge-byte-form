@@ -90,3 +90,36 @@
 .Toastify__toast--warning {
   @apply bg-warning-50 dark:bg-warning-900 text-warning-800 dark:text-warning-100;
 }
+
+/* Chart customization */
+.apexcharts-canvas {
+  @apply font-sans;
+}
+
+.apexcharts-tooltip {
+  @apply rounded-xl border border-gray-200 dark:border-gray-700 shadow-xl;
+}
+
+.apexcharts-tooltip-title {
+  @apply bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700;
+}
+
+.apexcharts-tooltip-text {
+  @apply text-gray-900 dark:text-gray-100;
+}
+
+.apexcharts-legend-text {
+  @apply text-gray-700 dark:text-gray-300 fill-current;
+}
+
+.apexcharts-gridline {
+  @apply stroke-gray-200 dark:stroke-gray-700;
+}
+
+.apexcharts-text {
+  @apply fill-gray-600 dark:fill-gray-400;
+}
+
+.chart-container {
+  @apply bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-soft border border-gray-100 dark:border-gray-700;
+}
