@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion';
+import Chart from 'react-apexcharts';
+
 import ApperIcon from '../components/ApperIcon';
 import Card from '../components/common/Card';
 import { dashboardConfig } from '../constants/dashboardConfig';
@@ -6,7 +8,8 @@ import { formatCurrency } from '../utils/formatUtils';
 import { useDashboardData } from '../hooks/useDashboardData';
 
 const Dashboard = () => {
-  const { stats, recentOrders, topProducts, isLoading } = useDashboardData();
+  const { stats, recentOrders, topProducts, revenueData, salesByCategory, monthlySales, isLoading } = useDashboardData();
+
 
   if (isLoading) {
     return (
@@ -65,6 +68,227 @@ const Dashboard = () => {
             </motion.div>
           ))}
         </div>
+
+        {/* Charts Section */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+            Sales Analytics
+          </h2>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+            {/* Revenue Trend Chart */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="lg:col-span-2"
+            >
+              <Card>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    Revenue Trend
+                  </h3>
+                  <ApperIcon name="TrendingUp" className="h-5 w-5 text-gray-400" />
+                </div>
+                <div className="chart-container h-80">
+                  <Chart
+                    type="line"
+                    height={320}
+                    options={{
+                      chart: {
+                        id: 'revenue-trend',
+                        toolbar: { show: false },
+                        zoom: { enabled: true }
+                      },
+                      theme: {
+                        mode: 'light'
+                      },
+                      stroke: {
+                        curve: 'smooth',
+                        width: 3
+                      },
+                      colors: ['#0ea5e9'],
+                      xaxis: {
+                        categories: revenueData.map(item => item.month),
+                        labels: {
+                          style: {
+                            colors: '#6b7280'
+                          }
+                        }
+                      },
+                      yaxis: {
+                        labels: {
+                          style: {
+                            colors: '#6b7280'
+                          },
+                          formatter: (value) => `$${(value / 1000).toFixed(0)}k`
+                        }
+                      },
+                      grid: {
+                        borderColor: '#e5e7eb',
+                        strokeDashArray: 4
+                      },
+                      tooltip: {
+                        y: {
+                          formatter: (value) => `$${value.toLocaleString()}`
+                        }
+                      },
+                      markers: {
+                        size: 6,
+                        colors: ['#0ea5e9'],
+                        strokeColors: '#fff',
+                        strokeWidth: 2,
+                        hover: {
+                          size: 8
+                        }
+                      }
+                    }}
+                    series={[{
+                      name: 'Revenue',
+                      data: revenueData.map(item => item.revenue)
+                    }]}
+                  />
+                </div>
+              </Card>
+            </motion.div>
+
+            {/* Sales by Category Chart */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <Card>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    Sales by Category
+                  </h3>
+                  <ApperIcon name="PieChart" className="h-5 w-5 text-gray-400" />
+                </div>
+                <div className="chart-container h-80">
+                  <Chart
+                    type="donut"
+                    height={320}
+                    options={{
+                      chart: {
+                        id: 'sales-category'
+                      },
+                      labels: salesByCategory.map(item => item.category),
+                      colors: ['#0ea5e9', '#a855f7', '#22c55e', '#f59e0b'],
+                      legend: {
+                        position: 'bottom',
+                        labels: {
+                          colors: '#6b7280'
+                        }
+                      },
+                      plotOptions: {
+                        pie: {
+                          donut: {
+                            size: '70%',
+                            labels: {
+                              show: true,
+                              total: {
+                                show: true,
+                                label: 'Total Sales',
+                                color: '#6b7280',
+                                formatter: () => salesByCategory.reduce((sum, item) => sum + item.sales, 0).toString()
+                              }
+                            }
+                          }
+                        }
+                      },
+                      tooltip: {
+                        y: {
+                          formatter: (value, { seriesIndex }) => {
+                            const item = salesByCategory[seriesIndex];
+                            return `${value} sales (${item.percentage}%)`;
+                          }
+                        }
+                      }
+                    }}
+                    series={salesByCategory.map(item => item.sales)}
+                  />
+                </div>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Monthly Sales Comparison */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <Card>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Monthly Sales Comparison
+                </h3>
+                <ApperIcon name="BarChart3" className="h-5 w-5 text-gray-400" />
+              </div>
+              <div className="chart-container h-80">
+                <Chart
+                  type="bar"
+                  height={320}
+                  options={{
+                    chart: {
+                      id: 'monthly-sales',
+                      toolbar: { show: false }
+                    },
+                    plotOptions: {
+                      bar: {
+                        horizontal: false,
+                        columnWidth: '55%',
+                        borderRadius: 4
+                      }
+                    },
+                    colors: ['#0ea5e9', '#94a3b8'],
+                    xaxis: {
+                      categories: monthlySales.map(item => item.month),
+                      labels: {
+                        style: {
+                          colors: '#6b7280'
+                        }
+                      }
+                    },
+                    yaxis: {
+                      labels: {
+                        style: {
+                          colors: '#6b7280'
+                        }
+                      }
+                    },
+                    grid: {
+                      borderColor: '#e5e7eb',
+                      strokeDashArray: 4
+                    },
+                    legend: {
+                      labels: {
+                        colors: '#6b7280'
+                      }
+                    },
+                    tooltip: {
+                      y: {
+                        formatter: (value) => `${value} orders`
+                      }
+                    }
+                  }}
+                  series={[
+                    {
+                      name: '2024',
+                      data: monthlySales.map(item => item.currentYear)
+                    },
+                    {
+                      name: '2023',
+                      data: monthlySales.map(item => item.lastYear)
+                    }
+                  ]}
+                />
+              </div>
+            </Card>
+          </motion.div>
+        </div>
+
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Recent Orders */}
