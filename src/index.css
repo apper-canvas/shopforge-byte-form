@@ -39,6 +39,47 @@
 
   .glass-effect {
     @apply bg-white/20 dark:bg-gray-800/20 backdrop-blur-lg border border-white/30 dark:border-gray-700/30;
+  }
+
+  .stock-status-badge {
+    @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium;
+  }
+
+  .stock-high {
+    @apply bg-success-100 text-success-800 dark:bg-success-900 dark:text-success-100;
+  }
+
+  .stock-low {
+    @apply bg-warning-100 text-warning-800 dark:bg-warning-900 dark:text-warning-100;
+  }
+
+  .stock-out {
+    @apply bg-danger-100 text-danger-800 dark:bg-danger-900 dark:text-danger-100;
+  }
+
+  .inventory-alert {
+    @apply p-4 rounded-lg border-l-4 bg-gradient-to-r transition-all duration-300;
+  }
+
+  .alert-warning {
+    @apply from-warning-50 to-warning-100 dark:from-warning-900/20 dark:to-warning-800/20 border-warning-400;
+  }
+
+  .alert-danger {
+    @apply from-danger-50 to-danger-100 dark:from-danger-900/20 dark:to-danger-800/20 border-danger-400;
+  }
+
+  .stock-movement-item {
+    @apply flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-sm transition-all duration-200;
+  }
+
+  .movement-in {
+    @apply border-l-4 border-success-400 bg-success-50/50 dark:bg-success-900/10;
+  }
+
+  .movement-out {
+    @apply border-l-4 border-danger-400 bg-danger-50/50 dark:bg-danger-900/10;
+
 
   .chart-container {
     @apply w-full h-full;

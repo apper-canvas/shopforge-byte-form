@@ -34,4 +34,45 @@ export const validateEmail = (email) => {
 
 export const validateRequired = (value) => {
   return value !== null && value !== undefined && value.toString().trim() !== '';
+
+export const validateStockAdjustment = (adjustmentData) => {
+  const errors = {};
+
+  if (!adjustmentData.adjustment) {
+    errors.adjustment = 'Stock adjustment is required';
+  } else {
+    const adjustment = parseInt(adjustmentData.adjustment);
+    if (isNaN(adjustment)) {
+      errors.adjustment = 'Adjustment must be a valid number';
+    } else if (adjustment === 0) {
+      errors.adjustment = 'Adjustment cannot be zero';
+    }
+  }
+
+  if (!adjustmentData.reason?.trim()) {
+    errors.reason = 'Reason for adjustment is required';
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors
+  };
+};
+
+export const validateInventoryUpdate = (productData, currentStock) => {
+  const errors = {};
+
+  if (productData.inventory !== undefined) {
+    const newStock = parseInt(productData.inventory);
+    if (isNaN(newStock) || newStock < 0) {
+      errors.inventory = 'Inventory must be a non-negative number';
+    }
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors
+  };
+};
+
 };

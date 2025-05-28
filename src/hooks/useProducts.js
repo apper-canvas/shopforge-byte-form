@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
+
 import { generateId } from '../utils/formatUtils';
 
 // Mock data for demonstration
@@ -59,14 +61,39 @@ export const useProducts = () => {
   };
 
   const updateProduct = async (productId, productData) => {
-    setProducts(prev => 
-      prev.map(product => 
+    setProducts(prev => {
+      const updated = prev.map(product => 
         product.id === productId 
           ? { ...product, ...productData }
           : product
-      )
-    );
+      );
+      
+      // Check for stock level changes and show notifications
+      const updatedProduct = updated.find(p => p.id === productId);
+      const originalProduct = prev.find(p => p.id === productId);
+      
+      if (originalProduct && updatedProduct && originalProduct.inventory !== updatedProduct.inventory) {
+        const change = updatedProduct.inventory - originalProduct.inventory;
+        if (change !== 0) {
+          const message = change > 0 
+            ? `Stock increased by ${change} units for ${updatedProduct.name}`
+            : `Stock decreased by ${Math.abs(change)} units for ${updatedProduct.name}`;
+          
+          toast.success(message);
+        }
+        
+        // Check for low stock warning
+        if (updatedProduct.inventory <= 10 && updatedProduct.inventory > 0) {
+          toast.warning(`Low stock alert: ${updatedProduct.name} has only ${updatedProduct.inventory} units remaining`);
+        } else if (updatedProduct.inventory === 0) {
+          toast.error(`${updatedProduct.name} is now out of stock`);
+        }
+      }
+      
+      return updated;
+    });
   };
+
 
   const deleteProduct = async (productId) => {
     setProducts(prev => prev.filter(product => product.id !== productId));
@@ -78,5 +105,15 @@ export const useProducts = () => {
     updateProduct,
     deleteProduct,
     isLoading
-  };
-};
+    getProductsByCategory: (category) => {
+      return products.filter(product => product.category === category);
+    },
+    getLowStockProducts: (threshold = 10) => {
+      return products.filter(product => product.inventory <= threshold && product.inventory > 0);
+    },
+    getOutOfStockProducts: () => {
+      return products.filter(product => product.inventory === 0);
+    },
+    getTotalInventoryValue: () => {
+      return products.reduce((total, product) => total + (product.price * product.inventory), 0);
+    },
