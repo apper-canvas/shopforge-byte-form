@@ -56,51 +56,19 @@ const mockTopProducts = [
   }
 ];
 
-
-// Mock chart data for analytics
-const mockChartData = {
-  revenueChart: {
-    series: [{
-      name: 'Revenue',
-      data: [85000, 92000, 78000, 105000, 110000, 125000, 135000, 142000, 138000, 145000, 155000, 165000]
-    }],
-    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-  },
-  salesByCategory: {
-    series: [45, 25, 20, 10],
-    labels: ['Electronics', 'Clothing', 'Books', 'Home & Garden']
-  },
-  monthlySales: {
-    series: [{
-      name: 'This Year',
-      data: [120, 135, 101, 134, 150, 160, 175, 180, 165, 170, 185, 195]
-    }, {
-      name: 'Last Year',
-      data: [95, 110, 85, 115, 125, 140, 155, 160, 145, 150, 165, 175]
-    }],
-    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-  }
-};
-
-
 export const useDashboardData = () => {
   const [stats, setStats] = useState({});
   const [recentOrders, setRecentOrders] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
-  const [chartData, setChartData] = useState({});
   const [isLoading, setIsLoading] = useState(true);
-
 
   useEffect(() => {
     // Simulate API call
     setTimeout(() => {
       setStats(mockStats);
       setRecentOrders(mockRecentOrders);
-      setChartData(mockChartData);
       setTopProducts(mockTopProducts);
       setIsLoading(false);
-
-
     }, 1000);
   }, []);
 
@@ -108,10 +76,6 @@ export const useDashboardData = () => {
     stats,
     recentOrders,
     topProducts,
-    chartData,
     isLoading
   };
-
-}
-
 };

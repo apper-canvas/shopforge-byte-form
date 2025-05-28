@@ -55,24 +55,6 @@
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-10px); }
   }
-
-  /* Chart container styles */
-  .chart-container {
-    @apply w-full h-80;
-  }
-  
-  .chart-container .apexcharts-canvas {
-    @apply rounded-lg;
-  }
-  
-  .chart-container .apexcharts-tooltip {
-    @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg;
-  }
-  
-  .chart-container .apexcharts-tooltip-title {
-    @apply bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600;
-  }
-
 }
 
 /* Custom scrollbar */
